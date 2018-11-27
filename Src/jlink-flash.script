@@ -1,0 +1,7 @@
+if SWD
+speed 10000
+h
+loadfile build/stm32_ws2812b.bin, 0x0
+verifybin build/stm32_ws2812b.bin, 0x0
+r
+qc
