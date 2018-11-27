@@ -33,11 +33,6 @@ void ws2812_set_pixel_color(int nr, uint8_t r, uint8_t g, uint8_t b)
 void ws2812_show(void)
 {
     ws2812_hw_send(rgb_buffer, sizeof(rgb_buffer));
-
-    // reset 250*8=2us (> 280us)
-    uint8_t tmp = 0x00;
-    ws2812_hw_send(&tmp, sizeof(tmp));
-    ws2812_hw_delay_ms(1);
 }
 
 void color_wipe(uint8_t r, uint8_t g, uint8_t b)

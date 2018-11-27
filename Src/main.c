@@ -47,6 +47,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 SPI_HandleTypeDef hspi2;
+DMA_HandleTypeDef hdma_spi2_tx;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -56,6 +57,7 @@ SPI_HandleTypeDef hspi2;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI2_Init(void);
 
 /* USER CODE BEGIN PFP */
@@ -66,8 +68,7 @@ static void MX_SPI2_Init(void);
 /* USER CODE BEGIN 0 */
 void ws2812_hw_send(uint8_t *data, uint32_t size)
 {
-  HAL_SPI_Transmit(&hspi2, data, size, 1000);
-  //HAL_SPI_Transmit_DMA(&hspi2, data, size);
+  HAL_SPI_Transmit_DMA(&hspi2, data, size);
 }
 
 void ws2812_hw_delay_ms(uint32_t ms)
@@ -106,6 +107,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
   ws2812_init();
@@ -211,6 +213,21 @@ static void MX_SPI2_Init(void)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
+
+}
+
+/** 
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void) 
+{
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel4_5_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel4_5_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel4_5_IRQn);
 
 }
 
