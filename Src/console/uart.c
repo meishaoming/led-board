@@ -114,7 +114,7 @@ int uart_putc(uart_t *uart, int ch)
     if (uart_writeable(uart)) {
 #if defined (STM32F103xx)
         huart->Instance->DR = (uint8_t)(ch & 0xFF);
-#elif defined (STM32L071xx) || defined (STM32L072xx)
+#else
         huart->Instance->TDR = (uint8_t)(ch & 0xFF);
 #endif
         return ch;
@@ -128,7 +128,7 @@ int uart_getc(uart_t *uart)
     if (uart_readable(uart)) {
 #if defined (STM32F103xx)
         return (uint8_t)(huart->Instance->DR & (uint8_t) 0xFF);
-#elif defined (STM32L071xx) || defined (STM32L072xx)
+#else
         return (uint8_t)(huart->Instance->RDR & (uint8_t) 0xFF);
 #endif
     }

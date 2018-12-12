@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define LED_NR  60
+#define LED_NR  87
 
 void ws2812_hw_send(uint8_t *data, uint32_t size);
 void ws2812_hw_delay_ms(uint32_t ms);

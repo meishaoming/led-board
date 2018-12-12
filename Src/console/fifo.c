@@ -58,3 +58,17 @@ int fifo_peek(fifo_t *fifo, char *ch)
     *ch = fifo->buf[fifo->read_pos & fifo->mask];
     return 0;
 }
+
+int fifo_peek_buf(fifo_t *fifo, char *buf, unsigned int offs, unsigned int len)
+{
+    if (fifo_len(fifo) < len) {
+        return -1;
+    }
+    unsigned int read_pos = fifo->read_pos + offs;
+    while (len--) {
+        *buf = fifo->buf[read_pos & fifo->mask];
+        buf++;
+        read_pos++;
+    }
+    return 0;
+}

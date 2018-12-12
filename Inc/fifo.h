@@ -42,6 +42,7 @@ void fifo_reset(fifo_t *fifo);
 int fifo_put(fifo_t *fifo, char ch);
 int fifo_get(fifo_t *fifo, char *ch);
 int fifo_peek(fifo_t *fifo, char *ch);
+int fifo_peek_buf(fifo_t *fifo, char *buf, unsigned int offs, unsigned int len);
 
 #ifdef __cplusplus
 }

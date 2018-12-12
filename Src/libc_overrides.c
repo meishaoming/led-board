@@ -1,5 +1,6 @@
 #include "stm32f0xx_hal.h"
 #include <SEGGER_RTT.h>
+#include <console.h>
 
 int _write(int fd, char *ptr, int len)
 {
