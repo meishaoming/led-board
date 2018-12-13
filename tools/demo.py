@@ -82,18 +82,16 @@ def theaterChaseRainbow(strip, wait_ms=50):
 if __name__ == '__main__':
     # Process arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--clear', action='store_true', help='clear the display on exit')
+    parser.add_argument('-d', '--device', default='/dev/ttyUSB0', help='usb serial device node')
     args = parser.parse_args()
 
-    # Create NeoPixel object with appropriate configuration.
     strip = NeoPixel(LED_COUNT)
-    # Intialize the library (must be called once before other functions).
-    strip.begin()
+    strip.begin(args.device)
 
-    print ('Press Ctrl-C to quit.')
-    if not args.clear:
-        print('Use "-c" argument to clear LEDs on exit')
-
+#    print ('Press Ctrl-C to quit.')
+#    if not args.clear:
+#        print('Use "-c" argument to clear LEDs on exit')
+#
 #    for i in range(strip.numPixels()):
 #        strip.setPixelColor(i, Color(255, 0, 0))
 #    strip.show()

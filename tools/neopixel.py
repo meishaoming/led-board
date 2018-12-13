@@ -2,6 +2,35 @@
 import serial
 import struct
 
+import crc16pure
+
+import binascii
+
+class Command(object):
+    def __init__(self, action, led_data=None):
+        sync_byte = 0xC0
+        version = 0x0
+        self.data = bytearray(b'AT')
+        self.data.append(sync_byte)
+        self.data.append(version)
+        #print(self.data)
+
+        cmd_data = bytearray(action)
+        if led_data != None:
+            cmd_data.extend(led_data)
+
+        self.data.extend(struct.pack('H', len(cmd_data)))
+
+        self.data.extend(cmd_data)
+
+        crc = crc16pure.crc16xmodem(cmd_data)
+        self.data.extend(struct.pack('H', crc)) #crc
+
+        #print('crc', hex(crc))
+        #print('length', len(self.data))
+        #print('data', binascii.hexlify(self.data))
+
+
 def Color(red, green, blue, white = 0):
     return (white << 24) | (red << 16) | (green << 8) | blue
 
@@ -22,10 +51,11 @@ class NeoPixel(object):
     def __init__(self, num):
         self._led_data = LED_Data(num)
 
-    def begin(self):
+    def begin(self, port='/dev/ttyUSB0'):
+        pass
         try:
             self.ser = serial.Serial(
-                    port     = '/dev/cu.SLAB_USBtoUART',
+                    port     = port,
                     baudrate = 115200,
                     timeout  = None,
                     parity   = serial.PARITY_NONE,
@@ -34,27 +64,28 @@ class NeoPixel(object):
                     xonxoff  = False,
                     rtscts   = False,
                     dsrdtr   = False,
-                    exclusive = True,
                     )
         except:
             raise
 
+    def reset(self):
+        cmd = Command(b'R')
+        self.ser.write(cmd.data)
+        self.ser.flushOutput()
+        self.ser.flushInput()
+
+    def echo(self):
+        cmd = Command(b'E')
+        self.ser.write(cmd.data)
+        self.ser.flushOutput()
+        self.ser.flushInput()
+
     def show(self):
         # write data to serial
-        cmd = bytearray()
-        cmd.append(0x41)
-        cmd.append(0x54)
-        cmd.append(0xC0)
-        cmd.append(0x0)
-        cmd.extend(struct.pack('H', 1+len(self._led_data.arr))) #len
-        cmd.append(0)
-        cmd.extend(self._led_data.arr)
-        cmd.extend(struct.pack('H', 0x1213)) #crc
-#        print(len(cmd))
-#        print(cmd)
-        self.ser.write(cmd)
-        self.ser.flush()
-        pass
+        cmd = Command(b'D', self._led_data.arr)
+        self.ser.write(cmd.data)
+        self.ser.flushOutput()
+        self.ser.flushInput()
 
     def setPixelColor(self, n, color):
         self._led_data[n] = color
@@ -70,3 +101,9 @@ class NeoPixel(object):
 
     def getPixelColor(self, n):
         return self._led_data[n]
+
+if __name__ == '__main__':
+    strip = NeoPixel(10)
+    strip.begin()
+    strip.echo()
+    strip.reset()

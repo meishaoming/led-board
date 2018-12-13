@@ -58,14 +58,15 @@ Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c \
 Src/system_stm32f0xx.c \
-Src/segger/SEGGER_RTT.c \
+Src/SEGGER_RTT.c \
 Src/libc_overrides.c \
 Src/ws2812b.c \
-Src/console/uart.c \
-Src/console/serial.c \
-Src/console/fifo.c \
-Src/console/console.c \
-Src/command.c
+Src/uart.c \
+Src/serial.c \
+Src/fifo.c \
+Src/console.c \
+Src/command.c \
+Src/crc16.c
 
 # ASM sources
 ASM_SOURCES =  \

@@ -5,6 +5,7 @@
 #include "fifo.h"
 #include "console.h"
 #include "ws2812b.h"
+#include "crc16.h"
 
 // header + sync + version + length + payload + crc
 
@@ -34,39 +35,57 @@ static int try_read_cmd(void)
 
     uint8_t sync = 0;
     console_peek_buf(&sync, CMD_HEADER_SIZE, sizeof(sync));
-    assert(sync == SYNC_BYTE);
-    //printf("sync 0x%02x\n", sync);
+    if (sync != SYNC_BYTE) {
+        printf("sync 0x%02x\n", sync);
+        console_read_buf(cmd_buffer, CMD_HEADER_SIZE);
+        return -1;
+    }
 
     uint8_t version = 0;
     console_peek_buf((uint8_t *)&version, CMD_HEADER_SIZE+1, sizeof(version));
-    assert(version == CMD_VERSION);
-    //printf("version 0x%02x\n", version);
+    if (version != CMD_VERSION) {
+        printf("version 0x%02x\n", version);
+        console_read_buf(cmd_buffer, CMD_HEADER_SIZE+1);
+        return -1;
+    }
 
     uint16_t cmd_length;
     console_peek_buf((uint8_t *)&cmd_length, CMD_HEADER_SIZE+2, sizeof(cmd_length));
-    //printf("cmd_length %d/%d bytes\n", cmd_length, console_recv_size());
 
-    if (console_recv_size() < (CMD_HEADER_SIZE + 2 + cmd_length + 2)) {
+    if (console_recv_size() < (CMD_HEADER_SIZE + 4 + cmd_length + 2)) {
+        //printf("cmd_length %d/%d bytes\n", cmd_length, console_recv_size());
         return 1;
     }
 
     size_t read_len;
 
-    // pop `header + sync + version + length`
+    // pop `header + sync + version`
     read_len = console_read_buf(cmd_buffer, (CMD_HEADER_SIZE + 4));
     assert(read_len == (CMD_HEADER_SIZE + 4));
     //printf("header read_len %d\n", read_len);
 
     read_len = console_read_buf(cmd_buffer, cmd_length);
-    assert(read_len == cmd_length);
-    //printf("cmd read_len %d\n", read_len);
+    if (read_len != cmd_length) {
+        printf("cmd read_len %d\n", read_len);
+        return 1;
+    }
 
-    uint16_t crc = 0;
-    read_len = console_read_buf((uint8_t *)&crc, sizeof(crc));
-    assert(read_len == sizeof(crc));
-    //printf("crc 0x%04x\n", crc);
+    uint16_t crc_calc = crc16_calc(cmd_buffer, cmd_length);
 
-    //crc_check();
+    uint16_t crc_read = 0;
+    read_len = console_read_buf((uint8_t *)&crc_read, sizeof(crc_read));
+    if (read_len != sizeof(crc_read)) {
+        printf("crc read_len %d\n", read_len);
+        return 1;
+    }
+
+    if (crc_read != crc_calc) {
+        printf("crc calc 0x%04x\n", crc_calc);
+        printf("crc read 0x%04x\n", crc_read);
+        printf("crc failed\n");
+        return 1;
+    }
+
     return 0;
 }
 
@@ -98,8 +117,16 @@ void cmd_loop(void)
 
             uint8_t action = cmd_buffer[0];
             switch (action) {
-            case 0:
+            case 'D':
                 render(&cmd_buffer[1]);
+                break;
+            case 'E':
+                printf("command test: E\n");
+                break;
+            case 'R':
+                printf("system reset: R\n");
+                HAL_Delay(200);
+                HAL_NVIC_SystemReset();
                 break;
             default:
                 break;

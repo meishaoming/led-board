@@ -9,7 +9,10 @@ static uint8_t rgb_buffer[LED_NR*12];
 
 void ws2812_init(void)
 {
-    memset(rgb_buffer, 0, sizeof(rgb_buffer));
+    for (int i = 0; i < LED_NR; i++) {
+        ws2812_set_pixel_color(i, 0, 0, 0);
+    }
+    ws2812_show();
 }
 
 void ws2812_set_pixel_color(int nr, uint8_t r, uint8_t g, uint8_t b)
