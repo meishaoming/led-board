@@ -86,7 +86,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     strip = NeoPixel(LED_COUNT)
-    strip.begin(args.device)
 
 #    print ('Press Ctrl-C to quit.')
 #    if not args.clear:
@@ -99,6 +98,7 @@ if __name__ == '__main__':
     try:
 
         while True:
+            strip.begin(args.device)
             print ('Color wipe animations.')
             colorWipe(strip, Color(255, 0, 0))  # Red wipe
             colorWipe(strip, Color(0, 255, 0))  # Blue wipe
@@ -111,6 +111,7 @@ if __name__ == '__main__':
             rainbow(strip)
             rainbowCycle(strip)
             theaterChaseRainbow(strip)
+            strip.begin(args.device)
 
     except KeyboardInterrupt:
         if args.clear:

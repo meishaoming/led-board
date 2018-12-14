@@ -12,6 +12,8 @@ make flash
 run demo on pc
 
 ```py
+pip install pyserial
+
 python3 tools/strandtest.py
 ```
 

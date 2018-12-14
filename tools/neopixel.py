@@ -52,7 +52,6 @@ class NeoPixel(object):
         self._led_data = LED_Data(num)
 
     def begin(self, port='/dev/ttyUSB0'):
-        pass
         try:
             self.ser = serial.Serial(
                     port     = port,
@@ -67,6 +66,9 @@ class NeoPixel(object):
                     )
         except:
             raise
+
+    def close(self):
+        self.ser.close()
 
     def reset(self):
         cmd = Command(b'R')
@@ -107,3 +109,4 @@ if __name__ == '__main__':
     strip.begin()
     strip.echo()
     strip.reset()
+    strip.close()
